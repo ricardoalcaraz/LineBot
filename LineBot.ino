@@ -73,6 +73,8 @@
 
 const uint8_t maxSpeed = 50;
 uint16_t IR_data[4];
+uint16_t maxIRValue;
+uint16_t minIRValue;
 /*In the setup we will set pins 2-8,10 to outputs for the motors and set A0-A4 to inputs for the IR Sensors*/
 void setup() {
 	motor_init();
@@ -82,6 +84,7 @@ void setup() {
 	sei();					//Enable Global Interrupts
 	//Short delay before starting
 	delay(2000);
+  Serial.begin(9600);
 }
 
 /*Functions Availabe:
@@ -92,15 +95,25 @@ void setup() {
 
 
 void loop() {
-	moveForward(100, 30);
-	delay(5000);
-	moveBackward(100,30);
-	delay(5000);
-	stop();
-	delay(10000);
-	
+  
 }
 
+void calibration() {
+	for(uint16_t i = 0; i < 4; i++) {
+		if(IR_data[i] > maxIRValue) {
+			maxIRValue = IR_data[i];
+		}else if(IR_data[i] < minIRValue) {
+			minIRValue = IR_
+	}
+	
+}
+void lineFollow() {
+	if([IR_data[backLeftData] > 300 && IR_data[backRightData] ) {
+	  moveForward(maxSpeed, maxSpeed);
+  }else{
+	  
+  }
+}
 /**Interrupt service routine to read analogIRData
  *
  */
