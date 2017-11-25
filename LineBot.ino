@@ -60,7 +60,7 @@
 #define STBY 5
 #define BIN2 3
 #define BIN1 4
-#define PWMB 6		//OCR4D
+#define PWMB 6		//OCR4D test test
 
 /* Time it takes for my bot to turn at a movespeed of 30 */
 #define arc_turn_delay 2500 //in ms
@@ -72,7 +72,7 @@
 #include <avr/sleep.h>
 
 const uint8_t maxSpeed = 50;
-uint16_t IR_data[4];
+volatile uint16_t IR_data[4];
 uint16_t maxIRValue;
 uint16_t minIRValue;
 /*In the setup we will set pins 2-8,10 to outputs for the motors and set A0-A4 to inputs for the IR Sensors*/
@@ -84,7 +84,14 @@ void setup() {
 	sei();					//Enable Global Interrupts
 	//Short delay before starting
 	delay(2000);
-  Serial.begin(9600);
+	calibration();
+	/*
+	Serial.begin(9600);
+	while(!Serial);
+	Serial.println("Calibration Done");
+	Serial.println(maxIRValue);
+	Serial.println(minIRValue);
+	*/
 }
 
 /*Functions Availabe:
@@ -95,31 +102,52 @@ void setup() {
 
 
 void loop() {
-  
+/*
+	Serial.println(IR_data[0]);
+	Serial.println(IR_data[1]);
+	Serial.println(IR_data[2]);
+	Serial.println(IR_data[3]);
+	delay(1000);
+*/
+	lineFollow();	
 }
 
+/**Function to calibrate the sensors and set a min or max value
+ * INPUTS: 	None
+ * OUTPUTS: None
+ */
 void calibration() {
-	for(uint16_t i = 0; i < 4; i++) {
-		if(IR_data[i] > maxIRValue) {
-			maxIRValue = IR_data[i];
-		}else if(IR_data[i] < minIRValue) {
-			minIRValue = IR_
+	minIRValue = 1000;
+	while(millis() < 7000) {
+		for(uint16_t i = 0; i < 4; i++) {
+			if(IR_data[i] > maxIRValue) {
+				maxIRValue = IR_data[i];
+			}else if(IR_data[i] < minIRValue) {
+				minIRValue = IR_data[i];
+			}
+		}
 	}
-	
 }
+/**Function to allow line following for the bot
+ *
+ */
 void lineFollow() {
-	if([IR_data[backLeftData] > 300 && IR_data[backRightData] ) {
-	  moveForward(maxSpeed, maxSpeed);
-  }else{
-	  
-  }
+	if(IR_data[backLeftData] > 300 && IR_data[backRightData] > 300) {
+		moveForward(maxSpeed, maxSpeed);
+	} else {
+		uint8_t leftSpeed = maxSpeed - (((IR_data[backLeftData]-minIRValue)/maxIRValue)*maxSpeed);
+		uint8_t rightSpeed = maxSpeed - (((IR_data[backRightData]-minIRValue)/maxIRValue)*maxSpeed);
+		moveForward(leftSpeed, rightSpeed);
+	}
 }
 /**Interrupt service routine to read analogIRData
  *
  */
 ISR(TIMER1_COMPA_vect) {
+	cli();
 	IR_data[0] = analogRead(frontLeftIR);
 	IR_data[1] = analogRead(frontRightIR);
 	IR_data[2] = analogRead(backLeftIR);
 	IR_data[3] = analogRead(backRightIR);
+	sei();
 }
