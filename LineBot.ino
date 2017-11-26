@@ -61,7 +61,7 @@
 #define BIN2 3
 #define BIN1 4
 #define PWMB 6		//OCR4D test test
-
+#define LED 16
 /* Time it takes for my bot to turn at a movespeed of 30 */
 #define arc_turn_delay 2500 //in ms
 #define tank_turn_delay 1250 //in ms
@@ -71,7 +71,9 @@
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 
-const uint8_t maxSpeed = 50;
+const uint8_t maxSpeed = 40;
+const uint8_t leftOffset = 0;
+const uint8_t rightOffset = 4;
 volatile uint16_t IR_data[4];
 uint16_t maxIRValue;
 uint16_t minIRValue;
@@ -102,14 +104,22 @@ void setup() {
 
 
 void loop() {
-/*
-	Serial.println(IR_data[0]);
-	Serial.println(IR_data[1]);
-	Serial.println(IR_data[2]);
-	Serial.println(IR_data[3]);
-	delay(1000);
+ /*
+	Serial.println(IR_data[backRightData]);
+	Serial.println(IR_data[backLeftData]);
+	Serial.println(IR_data[frontLeftData]);
+	Serial.println(IR_data[frontRightData]);
+	Serial.println("");
+	delay(500);
 */
 	lineFollow();	
+	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
+		stop();
+		delay(1000);
+		moveForward(maxSpeed, maxSpeed);
+		go();
+		delay(1000);
+	}
 }
 
 /**Function to calibrate the sensors and set a min or max value
@@ -127,17 +137,54 @@ void calibration() {
 			}
 		}
 	}
+	digitalWrite(LED, HIGH);
+	delay(500);
+	digitalWrite(LED, LOW);
+	delay(500);
+	digitalWrite(LED, HIGH);
+	delay(500);
+	digitalWrite(LED, LOW);
 }
 /**Function to allow line following for the bot
  *
  */
 void lineFollow() {
-	if(IR_data[backLeftData] > 300 && IR_data[backRightData] > 300) {
+	if(IR_data[backLeftData] > 500 && IR_data[backRightData] > 500) {
+		digitalWrite(LED, HIGH);
 		moveForward(maxSpeed, maxSpeed);
-	} else {
-		uint8_t leftSpeed = maxSpeed - (((IR_data[backLeftData]-minIRValue)/maxIRValue)*maxSpeed);
-		uint8_t rightSpeed = maxSpeed - (((IR_data[backRightData]-minIRValue)/maxIRValue)*maxSpeed);
-		moveForward(leftSpeed, rightSpeed);
+		go();
+	} else if(IR_data[backLeftData] < 500 && IR_data[backRightData] < 500) {
+		moveForward(maxSpeed, maxSpeed);
+		go();
+	}/* else if(IR_data[frontLeftData] > 300 && IR_data[frontRightData] < 300){
+		while(IR_data[frontRightData] < 300) {
+			moveForward(0,maxSpeed);
+		}	
+	} else if(IR_data[frontLeftData] < 300 && IR_data[frontRightData] > 300){
+		while(IR_data[frontLeftData] < 300) {
+			moveForward(maxSpeed,0);
+		}
+	}*/else if(IR_data[backLeftData] > 500 && IR_data[backRightData] < 500){
+		digitalWrite(LED, LOW);
+		/*
+		uint8_t rightSpeed = map(IR_data[backRightData], minIRValue, maxIRValue, maxSpeed+15, maxSpeed);
+		uint8_t leftSpeed = map(IR_data[backLeftData], minIRValue, maxIRValue, maxSpeed+15, maxSpeed);
+		moveForward(maxSpeed, maxSpeed+7);
+		();
+		*/
+		while(IR_data[backLeftData] > 500) {
+			moveForward(maxSpeed, maxSpeed+7);
+		}
+		moveForward(maxSpeed+20, maxSpeed);
+		delay(250);
+		moveForward(maxSpeed,maxSpeed);
+	} else { 
+		while(IR_data[backRightData] > 500) {
+			moveForward(maxSpeed+7, maxSpeed);
+		}
+		moveForward(maxSpeed, maxSpeed+20);
+		delay(250);
+		moveForward(maxSpeed,maxSpeed);
 	}
 }
 /**Interrupt service routine to read analogIRData
@@ -145,9 +192,30 @@ void lineFollow() {
  */
 ISR(TIMER1_COMPA_vect) {
 	cli();
-	IR_data[0] = analogRead(frontLeftIR);
-	IR_data[1] = analogRead(frontRightIR);
-	IR_data[2] = analogRead(backLeftIR);
-	IR_data[3] = analogRead(backRightIR);
+	static uint16_t frontLeft[4] = {0,0,0,0};
+	static uint16_t frontRight[4] = {0,0,0,0};
+	static uint16_t backRight[4] = {0,0,0,0};
+	static uint16_t backLeft[4] = {0,0,0,0};
+	static uint8_t counter = 0;
+	uint16_t sums[4] = {0,0,0,0};
+	frontLeft[counter] = analogRead(frontLeftIR);
+	frontRight[counter] = analogRead(frontRightIR);
+	backLeft[counter] = analogRead(backLeftIR);
+	backRight[counter] = analogRead(backRightIR);
+	for(int i = 0; i < 4; i++) {
+		sums[0] += frontLeft[i];
+		sums[1] += frontRight[i];
+		sums[2] += backLeft[i];
+		sums[3] += backRight[i];
+	}
+	IR_data[frontLeftData] = (sums[0] >> 2);
+	IR_data[frontRightData] = (sums[1] >> 2);
+	IR_data[backLeftData] = (sums[2] >> 2);
+	IR_data[backRightData] = (sums[3] >> 2);
+	if(counter == 3) {
+		counter = 0;
+	} else {
+		counter++;
+	}
 	sei();
 }

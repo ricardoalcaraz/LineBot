@@ -109,14 +109,12 @@ void lineFollow(uint16_t IR_data[4], uint8_t maxSpeed) {
  * OUTPUTS: None
  */
 void moveForward(uint8_t leftMotorSpeed, uint8_t rightMotorSpeed){
-	digitalWrite(STBY, LOW);
     digitalWrite(AIN1, LOW);
     digitalWrite(AIN2, HIGH);
     digitalWrite(BIN1, LOW);
     digitalWrite(BIN2, HIGH);
-	OCR4D = leftMotorSpeed;
-	OCR4B = rightMotorSpeed;
-    digitalWrite(STBY, HIGH);
+	OCR4D = leftMotorSpeed+leftOffset;
+	OCR4B = rightMotorSpeed+rightOffset;
 }
 
 
@@ -130,14 +128,12 @@ void moveForward(uint8_t leftMotorSpeed, uint8_t rightMotorSpeed){
  * OUTPUTS: None
  */
 void moveBackward(uint8_t leftMotorSpeed, uint8_t rightMotorSpeed){
-	digitalWrite(STBY, LOW);
     digitalWrite(AIN1, HIGH);
     digitalWrite(AIN2, LOW);
     digitalWrite(BIN1, HIGH);
     digitalWrite(BIN2, LOW);
-	OCR4D = leftMotorSpeed;
-	OCR4B = rightMotorSpeed;
-    digitalWrite(STBY, HIGH);
+	OCR4D = leftMotorSpeed+leftOffset;
+	OCR4B = rightMotorSpeed+rightOffset;
 }
 
 
@@ -170,7 +166,6 @@ void tankTurnRight(uint8_t motorSpeed){
 
 
 
-/*---------------------------------------------------------------------------------------
  * Function to turn the robot left through a tank turn
  * Needs a time delay of 2.5s if running at the pwm at 30/255
  * Inputs: None

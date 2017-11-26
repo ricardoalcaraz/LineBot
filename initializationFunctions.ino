@@ -7,7 +7,7 @@ void motor_init() {
 	/*Setting Pin 7 to an output*/
 	DDRE |= ( _BV(PE6) );
 	/*Setting Pin 8 and 9 to outputs*/
-	DDRB |= ( _BV(PB4) | _BV(PB5) );
+	DDRB |= ( _BV(PB4) | _BV(PB5) | _BV(PB2) );
 }
 
 void timer4_pwm_init() {
