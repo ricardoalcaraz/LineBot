@@ -15,14 +15,10 @@ void timer4_pwm_init() {
 	//Setting Timer Output 10 to an output
 	DDRB |= _BV(PB6);			//Pin 10 - has timer output OC4B going here
 	//Timer 4 control registers, I clear the registers before writing to them
-	TCCR4A = 0;
 	TCCR4A |= ( _BV(COM4B1) | _BV(PWM4B) );	//Enable PWM output on this pin
-	TCCR4B = 0;
-	//TCCR4B &= ~( _BV(CS43) | _BV(CS42) | _BV(CS41) );  //clear prior settings
+	TCCR4B &= ~( _BV(CS43) | _BV(CS42) | _BV(CS41) );  //clear prior settings
 	TCCR4B |=  _BV(CS40) ;		//Set the clock prescaler, we use no division since the clock is already halved by using phase correct PWM
-	TCCR4C = 0;
 	TCCR4C |= ( _BV(COM4B1S) | _BV(COM4D1) | _BV(PWM4D) );	//Set these bits to overtake the pins, for some reason only setting the shadow bit works for OCR4B
-	TCCR4D = 0;
 	TCCR4D |=  _BV(WGM40);		//Setting phase correct PWM
 	//Programmable Counter Unit
 	OCR4B = maxSpeed;				//Initial Duty Cycle

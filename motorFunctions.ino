@@ -28,26 +28,46 @@ void go(){
  * Function to implement an exact turn without implementing a machine dependent delay
  * Due to the placement of my sensor I was able to implement and FSM turn in two states
  */
-void fsmRight(uint8_t motorSpeed, uint16_t IR_data[4]){
-	/*State 1 - Moving the bot into a good position to start the turn*/
-	while(IR_data[frontLeftData] > 300 && IR_data[frontRightData] > 300){
-		moveBackward(motorSpeed, motorSpeed);
-	}
-	/*Setting up for a tank turn*/
+void fsmRight(){
+	uint8_t state = 0;
 	stop();
-	/*Setting Right motor to move forward*/
-	digitalWrite(AIN1, HIGH);
-	digitalWrite(AIN2, LOW);
-	/*Setting left motor to move backward*/
-	digitalWrite(BIN1, LOW);
-	digitalWrite(BIN2, HIGH);
-	/*Setting the turning speed*/
-	/*Initiate turn*/
-	go();
-	/*State 2 Read IR sensor data until the front two sensor are hitting white, the line follow will autocorrect if it's not perfectly centered*/
-	do{
-		//readIRSensors(IR_data);
-	}while(IR_data[frontLeftData] < 300 && IR_data[frontRightData] < 300 );
+	tankTurnRight(maxSpeed,maxSpeed);
+
+/*
+		stop();
+		digitalWrite(LED, HIGH);
+		delay(1000);
+		do {
+			if(IR_data[frontLeftData] < 500){
+				moveBackward(0,maxSpeed);
+			} else if(IR_data[frontRightData] < 500) {
+				moveBackward(maxSpeed,0);
+			} else {
+				moveBackward(maxSpeed, maxSpeed);
+			}
+			go();
+		} while( IR_data[frontRightData] > 500 || IR_data[frontLeftData] > 500);
+		stop();
+		delay(1000);
+		do {	
+			tankTurnRight(maxSpeed, maxSpeed);
+			go();
+		} while( (IR_data[frontRightData] < 700) || IR_data[frontLeftData] < 700  ); 
+		stop();
+		do {
+			if(IR_data[frontLeftData] < 500){
+				moveForward(0,maxSpeed);
+			} else if(IR_data[frontRightData] < 500) {
+				moveForward(maxSpeed,0);
+			} else {
+				moveForward(maxSpeed, maxSpeed);
+			}
+			go();
+		} while(IR_data[frontRightData] > 500 || IR_data[frontLeftData] > 500); 
+		digitalWrite(LED,LOW);
+		stop();
+		delay(1000);
+*/
 }
 
 

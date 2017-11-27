@@ -112,41 +112,20 @@ void loop() {
 	Serial.println("");
 	delay(200);
 //*/
+	static uint8_t counter = 0;
 	lineFollow();	
 	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
 		stop();
-		digitalWrite(LED, HIGH);
 		delay(1000);
-		do {
-			if(IR_data[frontLeftData] < 500){
-				moveBackward(0,maxSpeed);
-			} else if(IR_data[frontRightData] < 500) {
-				moveBackward(maxSpeed,0);
-			} else {
-				moveBackward(maxSpeed, maxSpeed);
-			}
+		counter++;
+		if(counter == 2){
+			tankTurnRight(maxSpeed,maxSpeed);
 			go();
-		} while( IR_data[frontRightData] > 500 || IR_data[frontLeftData] > 500);
-		stop();
-		delay(1000);
-		do {	
-			tankTurnRight(maxSpeed, maxSpeed);
+			delay(2500);
+		} else {
 			go();
-		} while( (IR_data[frontRightData] < 700) || IR_data[frontLeftData] < 700  ); 
-		stop();
-		do {
-			if(IR_data[frontLeftData] < 500){
-				moveForward(0,maxSpeed);
-			} else if(IR_data[frontRightData] < 500) {
-				moveForward(maxSpeed,0);
-			} else {
-				moveForward(maxSpeed, maxSpeed);
-			}
-			go();
-		} while(IR_data[frontRightData] > 500 || IR_data[frontLeftData] > 500); 
-		digitalWrite(LED,LOW);
-		stop();
-		delay(5000);
+			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
+		}
 	}
 //	*/
 }
@@ -194,10 +173,10 @@ void lineFollow() {
 			case 1: moveForward(maxSpeed,maxSpeed);
 					break;
 			case 2: if(prevState == 3) {
-						moveForward(maxSpeed+10,maxSpeed-10);
+						moveForward(maxSpeed+15,maxSpeed-10);
 						delay(95);
 					} else if(prevState == 4) {
-						moveForward(maxSpeed-10, maxSpeed+10);
+						moveForward(maxSpeed-10, maxSpeed+15);
 						delay(95);
 					}
 					moveForward(maxSpeed, maxSpeed);
