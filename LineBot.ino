@@ -71,7 +71,7 @@
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 
-const uint8_t maxSpeed = 40;
+const uint8_t maxSpeed = 30;
 const uint8_t leftOffset = 0;
 const uint8_t rightOffset = 4;
 volatile uint16_t IR_data[4];
@@ -87,13 +87,13 @@ void setup() {
 	//Short delay before starting
 	delay(2000);
 	calibration();
-	/*
+/*	
 	Serial.begin(9600);
 	while(!Serial);
 	Serial.println("Calibration Done");
 	Serial.println(maxIRValue);
 	Serial.println(minIRValue);
-	*/
+//	*/
 }
 
 /*Functions Availabe:
@@ -104,22 +104,58 @@ void setup() {
 
 
 void loop() {
- /*
+/*
 	Serial.println(IR_data[backRightData]);
 	Serial.println(IR_data[backLeftData]);
 	Serial.println(IR_data[frontLeftData]);
 	Serial.println(IR_data[frontRightData]);
 	Serial.println("");
-	delay(500);
-*/
+	delay(200);
+//*/
 	lineFollow();	
+	/*
+	moveForward(maxSpeed, maxSpeed);
+	go();
 	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
+		digitalWrite(AIN1, HIGH);
+		digitalWrite(AIN2, HIGH);
+		digitalWrite(BIN1,HIGH);
+		digitalWrite(BIN2,HIGH);
+		stop();
+		digitalWrite(LED, HIGH);
+		delay(1000);
+		do {
+			if(IR_data[frontLeftData] < 500){
+				moveBackward(0,maxSpeed);
+			} else if(IR_data[frontRightData] < 500) {
+				moveBackward(maxSpeed,0);
+			} else {
+				moveBackward(maxSpeed, maxSpeed);
+			}
+			go();
+		} while( IR_data[frontRightData] > 500 || IR_data[frontLeftData] > 500);
 		stop();
 		delay(1000);
-		moveForward(maxSpeed, maxSpeed);
-		go();
-		delay(1000);
+		do {	
+			tankTurnRight(maxSpeed, maxSpeed);
+			go();
+		} while( (IR_data[frontRightData] < 700) || IR_data[frontLeftData] < 700  ); 
+		stop();
+		do {
+			if(IR_data[frontLeftData] < 500){
+				moveForward(0,maxSpeed);
+			} else if(IR_data[frontRightData] < 500) {
+				moveForward(maxSpeed,0);
+			} else {
+				moveForward(maxSpeed, maxSpeed);
+			}
+			go();
+		} while(IR_data[frontRightData] > 500 || IR_data[frontLeftData] > 500); 
+		digitalWrite(LED,LOW);
+		stop();
+		delay(5000);
 	}
+//	*/
 }
 
 /**Function to calibrate the sensors and set a min or max value
@@ -149,6 +185,8 @@ void calibration() {
  *
  */
 void lineFollow() {
+	static uint8_t currentState = 1;
+	uint8_t newState = 0;
 	if(IR_data[backLeftData] > 500 && IR_data[backRightData] > 500) {
 		digitalWrite(LED, HIGH);
 		moveForward(maxSpeed, maxSpeed);
@@ -164,7 +202,7 @@ void lineFollow() {
 		while(IR_data[frontLeftData] < 300) {
 			moveForward(maxSpeed,0);
 		}
-	}*/else if(IR_data[backLeftData] > 500 && IR_data[backRightData] < 500){
+	}*/else if(IR_data[backLeftData] > 600 && IR_data[backRightData] < 600){
 		digitalWrite(LED, LOW);
 		/*
 		uint8_t rightSpeed = map(IR_data[backRightData], minIRValue, maxIRValue, maxSpeed+15, maxSpeed);
@@ -173,18 +211,15 @@ void lineFollow() {
 		();
 		*/
 		while(IR_data[backLeftData] > 500) {
-			moveForward(maxSpeed, maxSpeed+7);
+	//		tankTurnRight(maxSpeed);
 		}
-		moveForward(maxSpeed+20, maxSpeed);
-		delay(250);
 		moveForward(maxSpeed,maxSpeed);
 	} else { 
 		while(IR_data[backRightData] > 500) {
-			moveForward(maxSpeed+7, maxSpeed);
+			moveForward(maxSpeed+5,maxSpeed);
 		}
-		moveForward(maxSpeed, maxSpeed+20);
-		delay(250);
-		moveForward(maxSpeed,maxSpeed);
+		moveForward(maxSpeed,maxSpeed+20);
+		delay(100);
 	}
 }
 /**Interrupt service routine to read analogIRData

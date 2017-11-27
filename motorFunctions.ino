@@ -146,9 +146,7 @@ void moveBackward(uint8_t leftMotorSpeed, uint8_t rightMotorSpeed){
  * Inputs: uint16_t speed
  * OUTPUTS: None
  */
-void tankTurnRight(uint8_t motorSpeed){
-	/*Disabling motors*/
-	digitalWrite(STBY, LOW);
+void tankTurnRight(uint8_t leftSpeed, uint8_t rightSpeed){
 	/*Setting Right motor to move back so it pivots in place*/
 	digitalWrite(AIN1, HIGH);
 	digitalWrite(AIN2, LOW);
@@ -156,24 +154,21 @@ void tankTurnRight(uint8_t motorSpeed){
 	digitalWrite(BIN1, LOW);
 	digitalWrite(BIN2, HIGH);
 	/*Setting the turning speed*/
-	OCR4B = motorSpeed;
-	OCR4D = motorSpeed;
-	digitalWrite(STBY, HIGH);
-	delay(tank_turn_delay);
+	OCR4B = rightSpeed+rightOffset;
+	OCR4D = leftSpeed+leftOffset;
+//	delay(tank_turn_delay);
 }
 
 
 
 
-
+/*
  * Function to turn the robot left through a tank turn
  * Needs a time delay of 2.5s if running at the pwm at 30/255
  * Inputs: None
  * Outputs: None
  */
 void tankTurnLeft(uint8_t motorSpeed){
-	/*Disabling motors*/
-	digitalWrite(STBY, LOW);
 	/*Setting Right motor to move back so it pivots in place*/
 	digitalWrite(AIN1, LOW);
 	digitalWrite(AIN2, HIGH);
@@ -181,10 +176,8 @@ void tankTurnLeft(uint8_t motorSpeed){
 	digitalWrite(BIN1, HIGH);
 	digitalWrite(BIN2, LOW);
 	/*Setting the turning speed*/
-	OCR4B = motorSpeed;
-	OCR4D = motorSpeed;
-	digitalWrite(STBY, HIGH);
-	delay(tank_turn_delay);
+	OCR4B = motorSpeed+rightOffset;
+	OCR4D = motorSpeed+leftOffset;
 }
 
 

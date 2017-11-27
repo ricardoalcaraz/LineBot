@@ -35,7 +35,7 @@ void timer_isr_init() {
 	TCCR1B = ( _BV(WGM12) | _BV(CS12) );		//Set timer to CTC(clear timer on compare) and prescaler to clk/256
 	TCCR1C = 0;		//Not forcing output compare
 	TCNT1 = 0;		//Setting Initial timer counter value_comp
-	OCR1A = 0x0139;	//Setting interrupts for every 1 ms( .001/T where T = 1/(clk/256) )
+	OCR1A = 0x030D;	//Setting interrupts for 40 times per second( .001/T where T = 1/(clk/256) )
 	TIMSK1 = 0;
 	TIMSK1 |= _BV(OCIE1A);	//Enable interrupts on compare match A
 }
