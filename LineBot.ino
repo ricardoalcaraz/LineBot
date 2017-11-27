@@ -113,14 +113,7 @@ void loop() {
 	delay(200);
 //*/
 	lineFollow();	
-	/*
-	moveForward(maxSpeed, maxSpeed);
-	go();
 	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
-		digitalWrite(AIN1, HIGH);
-		digitalWrite(AIN2, HIGH);
-		digitalWrite(BIN1,HIGH);
-		digitalWrite(BIN2,HIGH);
 		stop();
 		digitalWrite(LED, HIGH);
 		delay(1000);
@@ -188,30 +181,32 @@ void lineFollow() {
 	static uint8_t prevState = 0;
 	uint8_t newState;
 	if(IR_data[backLeftData] > 500 && IR_data[backRightData] > 500) {
-		newState = 1;
+		newState = prevState;
 	} else if(IR_data[backLeftData] < 500 && IR_data[backRightData] < 500) {
-		newState = 1;
-	} else if(IR_data[backLeftData] > 500 && IR_data[backRightData] < 500){
 		newState = 2;
-	} else if(IR_data[backLeftData] < 500 && IR_data[backRightData] > 500){ 
+	} else if(IR_data[backLeftData] > 500 && IR_data[backRightData] < 500){
 		newState = 3;
+	} else if(IR_data[backLeftData] < 500 && IR_data[backRightData] > 500){ 
+		newState = 4;
 	}
 	if(prevState != newState) {
 		switch (newState) {
-			case 1: if(prevState == 2) {
+			case 1: moveForward(maxSpeed,maxSpeed);
+					break;
+			case 2: if(prevState == 3) {
 						moveForward(maxSpeed+10,maxSpeed-10);
 						delay(95);
-					} else if(prevState == 3) {
+					} else if(prevState == 4) {
 						moveForward(maxSpeed-10, maxSpeed+10);
 						delay(95);
 					}
 					moveForward(maxSpeed, maxSpeed);
 					digitalWrite(LED, LOW);
 					break;
-			case 2: moveForward(maxSpeed, maxSpeed+9);
+			case 3: moveForward(maxSpeed, maxSpeed+9);
 					digitalWrite(LED, HIGH);
 					break;
-			case 3: moveForward(maxSpeed+9, maxSpeed);
+			case 4: moveForward(maxSpeed+9, maxSpeed);
 					digitalWrite(LED, HIGH);
 					break;
 		}
