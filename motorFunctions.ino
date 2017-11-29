@@ -30,23 +30,24 @@ void go(){
  */
 void fsmRight(){
 	uint8_t state = 0;
-	stop();
-	moveBackward(maxSpeed, maxSpeed);
 	go();
 	do {
-		if(IR_data[frontLeftData] < 500){
-				moveBackward(0,maxSpeed);
-			} else if(IR_data[frontRightData] < 500) {
-				moveBackward(maxSpeed,0);
-			} else {
-				moveBackward(maxSpeed, maxSpeed);
-			}
+		lineFollow();
 	} while(IR_data[backLeftData] < 500 || IR_data[backRightData] < 500);
 	stop();
 	delay(1000);
-	arcTurnRight(maxSpeed);
-	delay(arc_turn_delay);
-
+	tankTurnRight(maxSpeed, maxSpeed);
+	go();
+	while(IR_data[frontRightData] > 500);
+	stop();
+	delay(1000);
+	go();
+	while(IR_data[frontRightData] < 500);
+	stop();
+	delay(1000);
+	go();
+	while(IR_data[frontRightData] > 500);
+	
 /*
 		stop();
 		digitalWrite(LED, HIGH);

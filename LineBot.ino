@@ -119,10 +119,12 @@ void loop() {
 		stop();
 		delay(1000);
 		counter++;
-		if(counter == 6){
+		if(counter == 3){
+			digitalWrite(LED,HIGH);
 			fsmRight();
 			delay(1500);
-		} else {
+			digitalWrite(LED, LOW);
+		}  else{
 			go();
 			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
 		}
@@ -180,13 +182,10 @@ void lineFollow() {
 						delay(95);
 					}
 					moveForward(maxSpeed, maxSpeed);
-					digitalWrite(LED, LOW);
 					break;
 			case 3: moveForward(maxSpeed, maxSpeed+9);
-					digitalWrite(LED, HIGH);
 					break;
 			case 4: moveForward(maxSpeed+9, maxSpeed);
-					digitalWrite(LED, HIGH);
 					break;
 		}
 		prevState = newState;
