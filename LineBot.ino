@@ -85,8 +85,16 @@ void setup() {
 	timer_isr_init();
 	sei();					//Enable Global Interrupts
 	//Short delay before starting
-	delay(2000);
-	calibration();
+	delay(1000);
+	digitalWrite(LED, HIGH);
+	delay(500);
+	digitalWrite(LED, LOW);
+	delay(500);
+	digitalWrite(LED, HIGH);
+	delay(500);
+	digitalWrite(LED, LOW);
+	delay(500);
+	//calibration();
 /*	
 	Serial.begin(9600);
 	while(!Serial);
@@ -112,16 +120,18 @@ void loop() {
 	Serial.println("");
 	delay(200);
 //*/
+///*
 	static uint8_t counter = 0;
-	lineFollow();	
+	lineFollow();
+///*
 	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
 		stop();
 		delay(1000);
 		counter++;
-		if(counter == 2){
+		if(counter == 3){
 			tankTurnRight(maxSpeed,maxSpeed);
 			go();
-			delay(2500);
+			delay(2000);
 		} else {
 			go();
 			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
@@ -159,13 +169,13 @@ void calibration() {
 void lineFollow() {
 	static uint8_t prevState = 0;
 	uint8_t newState;
-	if(IR_data[backLeftData] > 500 && IR_data[backRightData] > 500) {
+	if( IR_data[frontLeftData] > 500 && IR_data[frontRightData] > 500 ) {
 		newState = prevState;
-	} else if(IR_data[backLeftData] < 500 && IR_data[backRightData] < 500) {
+	} else if( IR_data[frontLeftData] < 500 && IR_data[frontRightData] < 500 ) {
 		newState = 2;
-	} else if(IR_data[backLeftData] > 500 && IR_data[backRightData] < 500){
+	} else if( IR_data[frontLeftData] > 500 && IR_data[frontRightData] < 500 ) {
 		newState = 3;
-	} else if(IR_data[backLeftData] < 500 && IR_data[backRightData] > 500){ 
+	} else if( IR_data[frontLeftData] < 500 && IR_data[frontRightData] > 500 ) { 
 		newState = 4;
 	}
 	if(prevState != newState) {
@@ -173,13 +183,15 @@ void lineFollow() {
 			case 1: moveForward(maxSpeed,maxSpeed);
 					break;
 			case 2: if(prevState == 3) {
-						moveForward(maxSpeed+15,maxSpeed-10);
-						delay(95);
+							moveForward( maxSpeed+20, maxSpeed-10);
+							delay(95);
 					} else if(prevState == 4) {
-						moveForward(maxSpeed-10, maxSpeed+15);
-						delay(95);
+							moveForward( maxSpeed-10, maxSpeed+20);
+							delay(95);
 					}
+					stop();
 					moveForward(maxSpeed, maxSpeed);
+					go();
 					digitalWrite(LED, LOW);
 					break;
 			case 3: moveForward(maxSpeed, maxSpeed+9);
