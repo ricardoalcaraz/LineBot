@@ -31,7 +31,21 @@ void go(){
 void fsmRight(){
 	uint8_t state = 0;
 	stop();
-	tankTurnRight(maxSpeed,maxSpeed);
+	moveBackward(maxSpeed, maxSpeed);
+	go();
+	do {
+		if(IR_data[frontLeftData] < 500){
+				moveBackward(0,maxSpeed);
+			} else if(IR_data[frontRightData] < 500) {
+				moveBackward(maxSpeed,0);
+			} else {
+				moveBackward(maxSpeed, maxSpeed);
+			}
+	} while(IR_data[backLeftData] < 500 || IR_data[backRightData] < 500);
+	stop();
+	delay(1000);
+	arcTurnRight(maxSpeed);
+	delay(arc_turn_delay);
 
 /*
 		stop();
@@ -244,8 +258,6 @@ void arcTurnRight(uint8_t motorSpeed){
   digitalWrite(BIN2, HIGH);
   /*Setting the turning speed*/
   OCR4D = motorSpeed;
-  digitalWrite(STBY, HIGH);
-  delay(arc_turn_delay);
 }
 
 

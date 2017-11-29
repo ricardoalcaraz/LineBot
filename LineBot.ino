@@ -112,16 +112,16 @@ void loop() {
 	Serial.println("");
 	delay(200);
 //*/
+///*
 	static uint8_t counter = 0;
 	lineFollow();	
 	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
 		stop();
 		delay(1000);
 		counter++;
-		if(counter == 2){
-			tankTurnRight(maxSpeed,maxSpeed);
-			go();
-			delay(2500);
+		if(counter == 6){
+			fsmRight();
+			delay(1500);
 		} else {
 			go();
 			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
@@ -173,10 +173,10 @@ void lineFollow() {
 			case 1: moveForward(maxSpeed,maxSpeed);
 					break;
 			case 2: if(prevState == 3) {
-						moveForward(maxSpeed+15,maxSpeed-10);
+						moveForward(maxSpeed+20,maxSpeed-10);
 						delay(95);
 					} else if(prevState == 4) {
-						moveForward(maxSpeed-10, maxSpeed+15);
+						moveForward(maxSpeed-10, maxSpeed+20);
 						delay(95);
 					}
 					moveForward(maxSpeed, maxSpeed);
