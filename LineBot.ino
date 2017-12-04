@@ -73,7 +73,7 @@
 
 const uint8_t maxSpeed = 30;
 const uint8_t leftOffset = 0;
-const uint8_t rightOffset = 4;
+const uint8_t rightOffset = 0;
 volatile uint16_t IR_data[4];
 uint16_t maxIRValue;
 uint16_t minIRValue;
@@ -102,6 +102,8 @@ void setup() {
 	Serial.println(maxIRValue);
 	Serial.println(minIRValue);
 //	*/
+tankTurnRight(200,200);
+go();
 }
 
 /*Functions Availabe:
@@ -121,9 +123,12 @@ void loop() {
 	delay(200);
 //*/
 ///*
+  delay(10000);
+  stop();
 	static uint8_t counter = 0;
-	lineFollow();
-///*
+// moveForward(maxSpeed, maxSpeed);
+	//lineFollow();
+/*
 	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
 		stop();
 		delay(1000);
