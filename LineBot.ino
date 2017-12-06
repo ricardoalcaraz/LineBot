@@ -58,7 +58,7 @@
 #define AIN2 8
 #define AIN1 7
 #define STBY 5
-#define BIN2 3
+#define BIN2 9
 #define BIN1 4
 #define PWMB 6		//OCR4D test test
 #define LED 16
@@ -72,8 +72,8 @@
 #include <avr/sleep.h>
 
 const uint8_t maxSpeed = 40;
-const uint8_t leftOffset = 2;
-const uint8_t rightOffset = 0;
+const uint8_t leftOffset = 0;
+const uint8_t rightOffset = 5;
 volatile uint16_t IR_data[4];
 uint16_t maxIRValue;
 uint16_t minIRValue;
@@ -83,7 +83,9 @@ void setup() {
 	timer4_pwm_init();
 	sensor_init();
 	timer_isr_init();
+  encoder_init();
 	sei();					//Enable Global Interrupts
+  pinMode(LED, OUTPUT);
 	//Short delay before starting
 	delay(1000);
 	digitalWrite(LED, HIGH);
@@ -102,7 +104,15 @@ void setup() {
 	Serial.println(maxIRValue);
 	Serial.println(minIRValue);
 //	*/
-go();
+/*
+  rotaryRight();
+  tankTurnRight(maxSpeed,maxSpeed);
+  go();
+  delay(1000);
+  stop();
+  */
+  moveForward(maxSpeed, maxSpeed);
+  go();
 }
 
 /*Functions Availabe:
@@ -122,17 +132,26 @@ void loop() {
 	delay(200);
 //*/
 ///*
- moveForward(maxSpeed, maxSpeed);
-	//lineFollow();
 /*
+  go();
+  moveForward(maxSpeed, maxSpeed);
+  delay(1000);
+  stop();
+  delay(1000);
+  rotaryRight();
+  delay(1000);
+  rotaryLeft();
+  delay(1000);
+*/
+  static uint8_t counter = 0;
+	lineFollow();
 	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
 		stop();
 		delay(1000);
 		counter++;
-		if(counter == 3){
-			tankTurnRight(maxSpeed,maxSpeed);
-			go();
-			delay(2000);
+		if(counter == 2){
+			rotaryLeft();
+      delay(2000);
 		} else {
 			go();
 			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
