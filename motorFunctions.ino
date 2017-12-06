@@ -261,4 +261,52 @@ void arcTurnRight(uint8_t motorSpeed){
   OCR4D = motorSpeed;
 }
 
+/*Function to turn right with rotary encoders
+ * 
+ */
+const uint8_t turn_ticks = 30;
+void rotaryRight() {
+  noInterrupts();
+  uint8_t rightCounter = 0;
+  uint8_t leftCounter = 0;
+  uint8_t currentStateLeft = 0;
+  uint8_t prevStateLeft = 0;
+  uint8_t currentStateRight = 0;
+  uint8_t prevStateRight = 0;
+  tankTurnRight(maxSpeed, maxSpeed);
+  go();
+  while(rightCounter < turn_ticks && leftCounter < turn_ticks) {
+    currentStateRight = PIND & 0x03;
+    currentStateLeft = PINB & 0x0A;
+    if(currentStateRight != prevStateRight) rightCounter++;
+    if(currentStateLeft != prevStateLeft) leftCounter++;
+    prevStateRight = currentStateRight;
+    prevStateLeft = currentStateLeft;
+  }
+  stop();
+  interrupts();
+}
+
+void rotaryLeft() {
+  noInterrupts();
+  uint8_t rightCounter = 0;
+  uint8_t leftCounter = 0;
+  uint8_t currentStateLeft = 0;
+  uint8_t prevStateLeft = 0;
+  uint8_t currentStateRight = 0;
+  uint8_t prevStateRight = 0;
+  tankTurnLeft(maxSpeed);
+  go();
+  while(rightCounter < turn_ticks && leftCounter < turn_ticks) {
+    currentStateRight = PIND & 0x03;
+    currentStateLeft = PINB & 0x0A;
+    if(currentStateRight != prevStateRight) rightCounter++;
+    if(currentStateLeft != prevStateLeft) leftCounter++;
+    prevStateRight = currentStateRight;
+    prevStateLeft = currentStateLeft;
+  }
+  stop();
+  interrupts();
+}
+
 

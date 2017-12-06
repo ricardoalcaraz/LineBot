@@ -58,7 +58,7 @@
 #define AIN2 8
 #define AIN1 7
 #define STBY 5
-#define BIN2 3
+#define BIN2 9
 #define BIN1 4
 #define PWMB 6		//OCR4D test test
 #define LED 16
@@ -71,9 +71,9 @@
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 
-const uint8_t maxSpeed = 30;
+const uint8_t maxSpeed = 40;
 const uint8_t leftOffset = 0;
-const uint8_t rightOffset = 4;
+const uint8_t rightOffset = 5;
 volatile uint16_t IR_data[4];
 uint16_t maxIRValue;
 uint16_t minIRValue;
@@ -83,10 +83,20 @@ void setup() {
 	timer4_pwm_init();
 	sensor_init();
 	timer_isr_init();
+  encoder_init();
 	sei();					//Enable Global Interrupts
+  pinMode(LED, OUTPUT);
 	//Short delay before starting
-	delay(2000);
-	calibration();
+	delay(1000);
+	digitalWrite(LED, HIGH);
+	delay(500);
+	digitalWrite(LED, LOW);
+	delay(500);
+	digitalWrite(LED, HIGH);
+	delay(500);
+	digitalWrite(LED, LOW);
+	delay(500);
+	//calibration();
 /*	
 	Serial.begin(9600);
 	while(!Serial);
@@ -94,6 +104,15 @@ void setup() {
 	Serial.println(maxIRValue);
 	Serial.println(minIRValue);
 //	*/
+/*
+  rotaryRight();
+  tankTurnRight(maxSpeed,maxSpeed);
+  go();
+  delay(1000);
+  stop();
+  */
+  moveForward(maxSpeed, maxSpeed);
+  go();
 }
 
 /*Functions Availabe:
@@ -113,18 +132,27 @@ void loop() {
 	delay(200);
 //*/
 ///*
-	static uint8_t counter = 0;
-	lineFollow();	
+/*
+  go();
+  moveForward(maxSpeed, maxSpeed);
+  delay(1000);
+  stop();
+  delay(1000);
+  rotaryRight();
+  delay(1000);
+  rotaryLeft();
+  delay(1000);
+*/
+  static uint8_t counter = 0;
+	lineFollow();
 	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
 		stop();
 		delay(1000);
 		counter++;
-		if(counter == 3){
-			digitalWrite(LED,HIGH);
-			fsmRight();
-			delay(1500);
-			digitalWrite(LED, LOW);
-		}  else{
+		if(counter == 2){
+			rotaryLeft();
+      delay(2000);
+		} else {
 			go();
 			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
 		}
@@ -161,13 +189,13 @@ void calibration() {
 void lineFollow() {
 	static uint8_t prevState = 0;
 	uint8_t newState;
-	if(IR_data[backLeftData] > 500 && IR_data[backRightData] > 500) {
+	if( IR_data[frontLeftData] > 500 && IR_data[frontRightData] > 500 ) {
 		newState = prevState;
-	} else if(IR_data[backLeftData] < 500 && IR_data[backRightData] < 500) {
+	} else if( IR_data[frontLeftData] < 500 && IR_data[frontRightData] < 500 ) {
 		newState = 2;
-	} else if(IR_data[backLeftData] > 500 && IR_data[backRightData] < 500){
+	} else if( IR_data[frontLeftData] > 500 && IR_data[frontRightData] < 500 ) {
 		newState = 3;
-	} else if(IR_data[backLeftData] < 500 && IR_data[backRightData] > 500){ 
+	} else if( IR_data[frontLeftData] < 500 && IR_data[frontRightData] > 500 ) { 
 		newState = 4;
 	}
 	if(prevState != newState) {
@@ -175,13 +203,16 @@ void lineFollow() {
 			case 1: moveForward(maxSpeed,maxSpeed);
 					break;
 			case 2: if(prevState == 3) {
-						moveForward(maxSpeed+20,maxSpeed-10);
-						delay(95);
+							moveForward( maxSpeed+20, maxSpeed-10);
+							delay(95);
 					} else if(prevState == 4) {
-						moveForward(maxSpeed-10, maxSpeed+20);
-						delay(95);
+							moveForward( maxSpeed-10, maxSpeed+20);
+							delay(95);
 					}
+					stop();
 					moveForward(maxSpeed, maxSpeed);
+					go();
+					digitalWrite(LED, LOW);
 					break;
 			case 3: moveForward(maxSpeed, maxSpeed+9);
 					break;
