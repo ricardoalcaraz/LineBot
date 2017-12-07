@@ -264,9 +264,12 @@ void arcTurnRight(uint8_t motorSpeed){
 /*Function to turn right with rotary encoders
  * 
  */
-const uint8_t turn_ticks = 30;
+const uint8_t turn_ticks = 23;
 void rotaryRight() {
+  digitalWrite(LED, HIGH);
   noInterrupts();
+  stop();
+  delay(1000);
   uint8_t rightCounter = 0;
   uint8_t leftCounter = 0;
   uint8_t currentStateLeft = 0;
@@ -275,7 +278,7 @@ void rotaryRight() {
   uint8_t prevStateRight = 0;
   tankTurnRight(maxSpeed, maxSpeed);
   go();
-  while(rightCounter < turn_ticks && leftCounter < turn_ticks) {
+  while(rightCounter < turn_ticks || leftCounter < turn_ticks) {
     currentStateRight = PIND & 0x03;
     currentStateLeft = PINB & 0x0A;
     if(currentStateRight != prevStateRight) rightCounter++;
@@ -285,28 +288,73 @@ void rotaryRight() {
   }
   stop();
   interrupts();
+  moveForward(maxSpeed, maxSpeed);
+  digitalWrite(LED, LOW);
 }
 
 void rotaryLeft() {
+  digitalWrite(LED, HIGH);
+  stop();
+  delay(1000);
+  go();
+  do {
+    lineFollow();
+  } while(IR_data[backLeftData] < 500 || IR_data[backRightData] < 500);
+  stop();
+  delay(1000);
+  moveBackward(maxSpeed - 5, maxSpeed - 5);
+  go();
+  while(IR_data[backLeftData] > 500 || IR_data[backRightData] > 500);
+  stop();
+  delay(1000);
   noInterrupts();
-  uint8_t rightCounter = 0;
   uint8_t leftCounter = 0;
   uint8_t currentStateLeft = 0;
   uint8_t prevStateLeft = 0;
+  tankTurnLeft(maxSpeed-5);
+  go();
+  while(leftCounter < turn_ticks) {
+    currentStateLeft = PINB & 0x0A;
+    if(currentStateLeft != prevStateLeft) leftCounter++;
+    prevStateLeft = currentStateLeft;
+  }
+  stop();
+  interrupts();
+  moveForward(maxSpeed, maxSpeed);
+  digitalWrite(LED, LOW);
+}
+
+const uint8_t turnAroundTicks = 43;
+void rotaryTurnAround() {
+  digitalWrite(LED, HIGH);
+  stop();
+  delay(1000);
+  go();
+  do {
+    lineFollow();
+  } while(IR_data[backLeftData] < 500 || IR_data[backRightData] < 500);
+  stop();
+  delay(1000);
+  noInterrupts();
+  uint8_t leftCounter = 0;
+  uint8_t currentStateLeft = 0;
+  uint8_t prevStateLeft = 0;
+  uint8_t rightCounter = 0;
   uint8_t currentStateRight = 0;
   uint8_t prevStateRight = 0;
-  tankTurnLeft(maxSpeed);
+  tankTurnLeft(maxSpeed-5);
   go();
-  while(rightCounter < turn_ticks && leftCounter < turn_ticks) {
-    currentStateRight = PIND & 0x03;
+  while( (leftCounter < turnAroundTicks || rightCounter < turnAroundTicks)) {
     currentStateLeft = PINB & 0x0A;
-    if(currentStateRight != prevStateRight) rightCounter++;
+    currentStateRight = PIND & 0x03;
     if(currentStateLeft != prevStateLeft) leftCounter++;
+    if(currentStateRight != prevStateRight) rightCounter++;
     prevStateRight = currentStateRight;
     prevStateLeft = currentStateLeft;
   }
   stop();
   interrupts();
+  moveForward(maxSpeed, maxSpeed);
+  digitalWrite(LED, LOW);
 }
-
 

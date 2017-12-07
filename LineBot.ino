@@ -104,15 +104,6 @@ void setup() {
 	Serial.println(maxIRValue);
 	Serial.println(minIRValue);
 //	*/
-/*
-  rotaryRight();
-  tankTurnRight(maxSpeed,maxSpeed);
-  go();
-  delay(1000);
-  stop();
-  */
-  moveForward(maxSpeed, maxSpeed);
-  go();
 }
 
 /*Functions Availabe:
@@ -145,13 +136,19 @@ void loop() {
 */
   static uint8_t counter = 0;
 	lineFollow();
-	if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
+	if(IR_data[frontRightData] > 400 && IR_data[frontLeftData] > 400) {
 		stop();
 		delay(1000);
 		counter++;
 		if(counter == 2){
 			rotaryLeft();
       delay(2000);
+		} else if( counter == 3 ) {
+      rotaryRight();
+      delay(2000);
+		} else if( counter == 4 ) {
+		  rotaryTurnAround();
+     delay(2000);
 		} else {
 			go();
 			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
