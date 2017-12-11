@@ -70,7 +70,7 @@
 #define __PROG_TYPES_COMPAT__
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
-
+#include <elapsedMillis.h>
 const uint8_t maxSpeed = 40;
 const uint8_t leftOffset = 0;
 const uint8_t rightOffset = 5;
@@ -84,7 +84,7 @@ void setup() {
 	sensor_init();
 	timer_isr_init();
   encoder_init();
-	sei();					//Enable Global Interrupts
+	//sei();					//Enable Global Interrupts
   pinMode(LED, OUTPUT);
 	//Short delay before starting
 	delay(1000);
@@ -134,6 +134,7 @@ void loop() {
   rotaryLeft();
   delay(1000);
 */
+/*
   static uint8_t counter = 0;
 	lineFollow();
 	if(IR_data[frontRightData] > 400 && IR_data[frontLeftData] > 400) {
@@ -155,6 +156,13 @@ void loop() {
 		}
 	}
 //	*/
+
+//  delay(1000);
+//  rotaryRight();
+//  delay(1000);
+//  rotaryLeft();
+  delay(1000);
+  rotaryTurnAround();
 }
 
 /**Function to calibrate the sensors and set a min or max value
