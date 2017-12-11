@@ -134,7 +134,7 @@ void loop() {
   rotaryLeft();
   delay(1000);
 */
-/*
+///*
   static uint8_t counter = 0;
 	lineFollow();
 	if(IR_data[frontRightData] > 400 && IR_data[frontLeftData] > 400) {
@@ -157,12 +157,6 @@ void loop() {
 	}
 //	*/
 
-//  delay(1000);
-//  rotaryRight();
-//  delay(1000);
-//  rotaryLeft();
-  delay(1000);
-  rotaryTurnAround();
 }
 
 /**Function to calibrate the sensors and set a min or max value
