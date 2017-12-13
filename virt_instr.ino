@@ -61,9 +61,13 @@ MazeValues stepInMaze(MazeValues test) {
  */
 MazeValues roomInMaze(MazeValues test, const uint8_t maze[]) {
   uint16_t index = (test.coord.row * 21) + test.coord.col;      //Find the index that our current row and column gives us
+<<<<<<< HEAD
   uint8_t maze_data = pgm_read_word_near(maze + index);           //Saving the maze data into a temp variable
   Serial.println(index);
   Serial.println(maze_data,HEX);
+=======
+  uint8_t maze_data = pgm_read_word_near(maze+index);           //Saving the maze data into a temp variable
+>>>>>>> master
   test.bees += (maze_data & 0xF0);                                //Clearing the lower nibble to grab the bees
   test.room = (maze_data & 0x0F);                               //Clearing the upper nibble to grab the room
   return test;
