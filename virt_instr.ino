@@ -14,18 +14,24 @@ MazeValues enterRoom(MazeValues data) {
  * OUTPUTS: Char determining which direction to go
  */
 char whichWay(MazeValues data) {
+  //The decisions for the rooms are already made and stored into an array
   const char room1Decider[6] = {'S', 'L', 'L', 'S', 'L','S'};
   const char room4Decider[4] = {'R', 'R', 'S'};
-  uint8_t roomType = 0;
+  //Counters are initialized as static to keep track of rooms
   static uint8_t n = 0;
   static uint8_t k = 0;
+  
+  //Room is stored into a single number to make manipulation easier
+  uint8_t roomType = 0;
   roomType |= (leftWall(data) << 2);
   roomType |= (hitWall(data) << 1);
   roomType |= rightWall(data);
+  
+  //Switch case for roomType, will return the direction that the bot should take
   switch(roomType) {
     case 0: return 'S';
     break;
-    case 1: return room1Decider[n++];
+    case 1: return room1Decider[n++];   //use the counter as an index and then do a post increment
     break;
     case 2: return 'L';
     break;

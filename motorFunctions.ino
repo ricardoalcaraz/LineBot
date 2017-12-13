@@ -95,51 +95,6 @@ void tankTurnLeft(uint8_t motorSpeed){
 }
 
 
-
-
-
-
-/*---------------------------------------------------------------------------------------
- * Function to turn the robot left
- * Needs a time delay of 2.5s if running at the pwm at 30/255
- * Inputs: None
- * Outputs: None
- */
-void arcTurnLeft(uint8_t motorSpeed){
-  /*Disabling Left motor so robot can pivot*/
-  digitalWrite(BIN1, LOW);
-  digitalWrite(BIN2, LOW);
-  digitalWrite(PWMB, HIGH);
-  /*Setting right motor to move forward*/
-  digitalWrite(AIN1, LOW);
-  digitalWrite(AIN2, HIGH);
-  /*Setting the turning speed*/
-  OCR4B = motorSpeed;
-  digitalWrite(STBY, HIGH);
-  delay(arc_turn_delay);
-}
-
-
-
-
-
-/*---------------------------------------------------------------------------------------
- * Function to the turn the robot right
- * Needs a time delay of 2.5s if running at the pwm at 30/255
- * Inputs: uint16_t speed
- * OUTPUTS: None
- */
-void arcTurnRight(uint8_t motorSpeed){
-  /*Disabling Right motor so robot can pivot*/
-  digitalWrite(AIN1, LOW);
-  digitalWrite(AIN2, LOW);
-  /*Setting right motor to move forward*/
-  digitalWrite(BIN1, LOW);
-  digitalWrite(BIN2, HIGH);
-  /*Setting the turning speed*/
-  OCR4D = motorSpeed;
-}
-
 /*Turn right using the encoders as feedback
  * Turning was implemented by counting ticks between different states
  * INPUTS: None
@@ -147,27 +102,28 @@ void arcTurnRight(uint8_t motorSpeed){
  */
 void rotaryRight() {
   digitalWrite(LED, HIGH);
+  //Get into position before the turn is executed
   while( IR_data[backLeftData] < 500 || IR_data[backRightData] < 500 ) {
     lineFollow();
   }
   stop();
   delay(1000);
-  noInterrupts();
+  noInterrupts();     //Interrupts are disabled to prevent unread state changes
   uint8_t rightCounter = 0;
   uint8_t leftCounter = 0;
-  uint8_t currentStateLeft = PINB & 0x0A;
-  uint8_t prevStateLeft = currentStateLeft;
+  uint8_t currentStateLeft = PINB & 0x0A;         //The pins are read directly
+  uint8_t prevStateLeft = currentStateLeft;       //Initialize the previous state variable
   uint8_t currentStateRight = PIND & 0x03;
   uint8_t prevStateRight = currentStateRight;
-  tankTurnRight(maxSpeed, maxSpeed);
-  while(rightCounter < 20 || leftCounter < 18 ) {
+  tankTurnRight(maxSpeed, maxSpeed);              //Get the bot ready to turn
+  while(rightCounter < 20 || leftCounter < 18 ) { //The encoder counts were tuned by testing until the right numbers were found
     currentStateRight = PIND & 0x03;
     currentStateLeft = PINB & 0x0A;
-    if(currentStateRight != prevStateRight) rightCounter++;
+    if(currentStateRight != prevStateRight) rightCounter++;   //Only increments counter when a state change was detected
     if(currentStateLeft != prevStateLeft) leftCounter++;
     prevStateRight = currentStateRight;
     prevStateLeft = currentStateLeft;
-    delay(100);
+    delay(100);                                   //Delay needed to stop debouncing from significantly affecting results
     go();
   }
   interrupts();
