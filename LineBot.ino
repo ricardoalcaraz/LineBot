@@ -71,6 +71,8 @@
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 #include <elapsedMillis.h>
+#include "maze.h"
+
 const uint8_t maxSpeed = 40;
 const uint8_t leftOffset = 0;
 const uint8_t rightOffset = 3;
@@ -96,13 +98,6 @@ void setup() {
 	delay(500);
 	digitalWrite(LED, LOW);
 	delay(500);
-	//calibration();
-
-//	Serial.begin(9600);
-//	while(!Serial);
-//	Serial.println("Calibration Done");
-//	Serial.println(maxIRValue);
-//	Serial.println(minIRValue);
 
 }
 
@@ -114,14 +109,6 @@ void setup() {
 
 
 void loop() {
-//	Serial.println(IR_data[backRightData]);
-//	Serial.println(IR_data[backLeftData]);
-//	Serial.println(IR_data[frontLeftData]);
-//	Serial.println(IR_data[frontRightData]);
-//	Serial.println("");
-//	delay(200);
-//moveForward(maxSpeed, maxSpeed);
-
 
   static uint8_t counter = 0;
 
@@ -148,29 +135,6 @@ void loop() {
 
 }
 
-/**Function to calibrate the sensors and set a min or max value
- * INPUTS: 	None
- * OUTPUTS: None
- */
-void calibration() {
-	minIRValue = 1000;
-	while(millis() < 7000) {
-		for(uint16_t i = 0; i < 4; i++) {
-			if(IR_data[i] > maxIRValue) {
-				maxIRValue = IR_data[i];
-			}else if(IR_data[i] < minIRValue) {
-				minIRValue = IR_data[i];
-			}
-		}
-	}
-	digitalWrite(LED, HIGH);
-	delay(500);
-	digitalWrite(LED, LOW);
-	delay(500);
-	digitalWrite(LED, HIGH);
-	delay(500);
-	digitalWrite(LED, LOW);
-}
 /**Function to allow line following for the bot
  *
  */
@@ -210,8 +174,8 @@ void lineFollow() {
 		prevState = newState;
 	}
 	go();
-
 }
+
 /**Interrupt service routine to read analogIRData
  *
  */
