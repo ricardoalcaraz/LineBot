@@ -73,7 +73,7 @@
 #include <elapsedMillis.h>
 const uint8_t maxSpeed = 40;
 const uint8_t leftOffset = 0;
-const uint8_t rightOffset = 5;
+const uint8_t rightOffset = 3;
 volatile uint16_t IR_data[4];
 uint16_t maxIRValue;
 uint16_t minIRValue;
@@ -97,13 +97,13 @@ void setup() {
 	digitalWrite(LED, LOW);
 	delay(500);
 	//calibration();
-/*	
-	Serial.begin(9600);
-	while(!Serial);
-	Serial.println("Calibration Done");
-	Serial.println(maxIRValue);
-	Serial.println(minIRValue);
-//	*/
+
+//	Serial.begin(9600);
+//	while(!Serial);
+//	Serial.println("Calibration Done");
+//	Serial.println(maxIRValue);
+//	Serial.println(minIRValue);
+
 }
 
 /*Functions Availabe:
@@ -114,48 +114,37 @@ void setup() {
 
 
 void loop() {
-/*
-	Serial.println(IR_data[backRightData]);
-	Serial.println(IR_data[backLeftData]);
-	Serial.println(IR_data[frontLeftData]);
-	Serial.println(IR_data[frontRightData]);
-	Serial.println("");
-	delay(200);
-//*/
-///*
-/*
-  go();
-  moveForward(maxSpeed, maxSpeed);
-  delay(1000);
-  stop();
-  delay(1000);
-  rotaryRight();
-  delay(1000);
-  rotaryLeft();
-  delay(1000);
-*/
-///*
+//	Serial.println(IR_data[backRightData]);
+//	Serial.println(IR_data[backLeftData]);
+//	Serial.println(IR_data[frontLeftData]);
+//	Serial.println(IR_data[frontRightData]);
+//	Serial.println("");
+//	delay(200);
+//moveForward(maxSpeed, maxSpeed);
+
+
   static uint8_t counter = 0;
+
 	lineFollow();
 	if(IR_data[frontRightData] > 400 && IR_data[frontLeftData] > 400) {
 		stop();
 		delay(1000);
 		counter++;
 		if(counter == 2){
-			rotaryLeft();
+			rotaryRight();
       delay(2000);
 		} else if( counter == 3 ) {
       rotaryRight();
       delay(2000);
 		} else if( counter == 4 ) {
 		  rotaryTurnAround();
-     delay(2000);
+      delay(2000);
 		} else {
 			go();
 			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
 		}
 	}
-//	*/
+
 
 }
 
@@ -213,9 +202,9 @@ void lineFollow() {
 					go();
 					digitalWrite(LED, LOW);
 					break;
-			case 3: moveForward(maxSpeed, maxSpeed+9);
+			case 3: moveForward(maxSpeed, maxSpeed+10);
 					break;
-			case 4: moveForward(maxSpeed+9, maxSpeed);
+			case 4: moveForward(maxSpeed+10, maxSpeed);
 					break;
 		}
 		prevState = newState;

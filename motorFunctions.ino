@@ -264,25 +264,27 @@ void arcTurnRight(uint8_t motorSpeed){
 /*Function to turn right with rotary encoders
  * 
  */
-const uint8_t turn_ticks = 19;
+const uint8_t turn_ticks = 30;
 void rotaryRight() {
   digitalWrite(LED, HIGH);
-  noInterrupts();
+  while( IR_data[backLeftData] < 500 || IR_data[backRightData] < 500 ) {
+    lineFollow();
+  }
   stop();
+  noInterrupts();
   delay(1000);
-  const uint8_t rightLookupTable = { 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0 };    //A lookup table to verify only valid states are counted 
-  const uint8_t leftLookupTable = { 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 };     //A lookup table to verify only valid states are counted
-  uint8_t rightState = PIND & 0x03;
-  uint8_t prevLeftState = 0;
   uint8_t rightCounter = 0;
   uint8_t leftCounter = 0;
   uint8_t currentStateLeft = PINB & 0x0A;
+  uint8_t prevStateLeft = currentStateLeft;
   uint8_t currentStateRight = PIND & 0x03;
+  uint8_t prevStateRight = currentStateRight;
   tankTurnRight(maxSpeed, maxSpeed);
-  while(rightCounter < turn_ticks ) {
-    rightState <<= 2;                 //remember previous state
-    rightState |= PIND & 0x03;        //Get current reading of the sensor
-    counter += rightLookupTable[(rightState & 0xFF)]    //Clear upper nibble and use lower nibble to grab data and see if its valid
+  while(rightCounter < 20 || leftCounter < 19 ) {
+    currentStateRight = PIND & 0x03;
+    currentStateLeft = PINB & 0x0A;
+    if(currentStateRight != prevStateRight) rightCounter++;
+    if(currentStateLeft != prevStateLeft) leftCounter++;
     prevStateRight = currentStateRight;
     prevStateLeft = currentStateLeft;
     delay(100);
@@ -296,8 +298,11 @@ void rotaryRight() {
 
 void rotaryLeft() {
   digitalWrite(LED, HIGH);
-  noInterrupts();
+  while( IR_data[backLeftData] < 500 || IR_data[backRightData] < 500 ) {
+    lineFollow();
+  }
   stop();
+  noInterrupts();
   delay(1000);
   uint8_t rightCounter = 0;
   uint8_t leftCounter = 0;
