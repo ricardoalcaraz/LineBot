@@ -123,7 +123,7 @@ void loop() {
 	delay(200);
 //*/
 ///*
-/*
+
   go();
   moveForward(maxSpeed, maxSpeed);
   delay(1000);
@@ -133,8 +133,8 @@ void loop() {
   delay(1000);
   rotaryLeft();
   delay(1000);
-*/
-///*
+
+/*
   static uint8_t counter = 0;
 	lineFollow();
 	if(IR_data[frontRightData] > 400 && IR_data[frontLeftData] > 400) {
@@ -142,7 +142,7 @@ void loop() {
 		delay(1000);
 		counter++;
 		if(counter == 2){
-			rotaryLeft();
+			rotaryRight
       delay(2000);
 		} else if( counter == 3 ) {
       rotaryRight();
@@ -213,9 +213,9 @@ void lineFollow() {
 					go();
 					digitalWrite(LED, LOW);
 					break;
-			case 3: moveForward(maxSpeed, maxSpeed+9);
+			case 3: moveForward(maxSpeed-10, maxSpeed+10);
 					break;
-			case 4: moveForward(maxSpeed+9, maxSpeed);
+			case 4: moveForward(maxSpeed+10, maxSpeed-10);
 					break;
 		}
 		prevState = newState;

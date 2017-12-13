@@ -264,28 +264,29 @@ void arcTurnRight(uint8_t motorSpeed){
 /*Function to turn right with rotary encoders
  * 
  */
-const uint8_t turn_ticks = 19;
+const uint8_t turn_ticks = 30;
 void rotaryRight() {
   digitalWrite(LED, HIGH);
   noInterrupts();
   stop();
   delay(1000);
-  const uint8_t rightLookupTable = { 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0 };    //A lookup table to verify only valid states are counted 
-  const uint8_t leftLookupTable = { 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 };     //A lookup table to verify only valid states are counted
-  uint8_t rightState = PIND & 0x03;
-  uint8_t prevLeftState = 0;
+  const uint8_t rightLookupTable[16] = { 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0 };    //A lookup table to verify only valid states are counted 
+  const uint8_t leftLookupTable[16] = { 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 };     //A lookup table to verify only valid states are counted
+  uint8_t prevRightState = (PIND & 0x03) << 2;
+  uint8_t leftState = PINB & 0x0A;
+  uint8_t rightState = 0;
   uint8_t rightCounter = 0;
   uint8_t leftCounter = 0;
-  uint8_t currentStateLeft = PINB & 0x0A;
-  uint8_t currentStateRight = PIND & 0x03;
   tankTurnRight(maxSpeed, maxSpeed);
-  while(rightCounter < turn_ticks ) {
-    rightState <<= 2;                 //remember previous state
-    rightState |= PIND & 0x03;        //Get current reading of the sensor
-    counter += rightLookupTable[(rightState & 0xFF)]    //Clear upper nibble and use lower nibble to grab data and see if its valid
-    prevStateRight = currentStateRight;
-    prevStateLeft = currentStateLeft;
-    delay(100);
+  while(rightCounter < 20 ) {
+    rightState = PIND & 0x03;        //Get current reading of the sensor
+    if( rightLookupTable[prevRightState | rightState] ){ //Clear upper nibble and use lower nibble to grab data and see if its valid, will increment counter if it is
+      prevRightState = rightState << 2;                //Save previous valid reading                 
+      rightCounter++;
+    }
+    leftState >>= 1;
+    leftState |= PINB & 0x0A;
+    leftCounter += leftLookupTable[(leftState & 0xFF)];
     go();
   }
   stop();
