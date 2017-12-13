@@ -96,8 +96,9 @@ void setup() {
 	delay(500);
 	digitalWrite(LED, LOW);
 	delay(500);
-  Serial.begin(9600);
-  while(!Serial);
+//  Serial.begin(9600);
+//  while(!Serial);
+
 }
 
 /*Functions Availabe:
@@ -110,25 +111,26 @@ void setup() {
 void loop() {
   //Initializing the virtual robot
   static MazeValues virtBot = {0x00, 0x00, 0x00, 0x03, 0x13, 0x00};
- // if( isIntersection() ) {
+  if( isIntersection() ) {
     stop();
-    delay(3000);
-    Serial.print("Current Dir: ");Serial.println(virtBot.dir);
-    Serial.print("Current turn: ");Serial.println(virtBot.turn);
-    Serial.print("Current row: ");Serial.println(virtBot.coord.row,HEX);
-    Serial.print("Current col: ");Serial.println(virtBot.coord.col,HEX);
-    Serial.print("Current Room: ");Serial.println(virtBot.room, HEX);
-    Serial.println("Taking a step");
+    delay(1000);
+//    Serial.print("Current Dir: ");Serial.println(virtBot.dir);
+//    Serial.print("Current turn: ");Serial.println(virtBot.turn);
+//    Serial.print("Current row: ");Serial.println(virtBot.coord.row,HEX);
+//    Serial.print("Current col: ");Serial.println(virtBot.coord.col,HEX);
+//    Serial.print("Current Room: ");Serial.println(virtBot.room, HEX);
+//    Serial.println("Taking a step");
     virtBot = enterRoom(virtBot);
-    Serial.print("Row: ");Serial.println(virtBot.coord.row,HEX);
-    Serial.print("Col: ");Serial.println(virtBot.coord.col,HEX);
-    Serial.print("Room: ");Serial.println(virtBot.room, HEX);
+//    Serial.print("Row: ");Serial.println(virtBot.coord.row,HEX);
+//    Serial.print("Col: ");Serial.println(virtBot.coord.col,HEX);
+//    Serial.print("Room: ");Serial.println(virtBot.room, HEX);
     char choice = whichWay(virtBot);
-    Serial.print("Next choice: ");Serial.println(choice);   
-    Serial.println("");
+//    Serial.print("Next choice: ");Serial.println(choice);   
+//    Serial.println("");
     switch (choice) {
-      case 'S': //go();
-                //while(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500);
+      case 'S': 
+                
+                while(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) lineFollow();
                 break;
       case 'L': virtBot.turn = 0b10;
                 virtBot = turnInMaze(virtBot);
@@ -142,16 +144,9 @@ void loop() {
                 virtBot = turnInMaze(virtBot);
                 rotaryTurnAround();
                 break;   
-   // }
-  //  lineFollow();
-    
-
-
-
-
-    
+    }
   }
-
+  lineFollow();
 }
 
 boolean isIntersection() {
