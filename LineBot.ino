@@ -126,22 +126,7 @@ void loop() {
     char choice = whichWay(virtBot);
     Serial.print("Next choice: ");Serial.println(choice);   
     Serial.println("");
-    switch (choice) {
-      case 'S': //go();
-                //while(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500);
-                break;
-      case 'L': virtBot.turn = 0b10;
-                virtBot = turnInMaze(virtBot);
-                rotaryLeft();
-                break;
-      case 'R': virtBot.turn = 0b01;
-                virtBot = turnInMaze(virtBot);
-                rotaryRight();
-                break;
-      case 'T': virtBot.turn = 0b11;
-                virtBot = turnInMaze(virtBot);
-                rotaryTurnAround();
-                break;   
+     
    // }
   //  lineFollow();
     
@@ -150,7 +135,7 @@ void loop() {
 
 
     
-  }
+  
 
 }
 
