@@ -96,8 +96,6 @@ void setup() {
 	delay(500);
 	digitalWrite(LED, LOW);
 	delay(500);
-//  Serial.begin(9600);
-//  while(!Serial);
 
 }
 
@@ -115,19 +113,8 @@ void loop() {
   if( isIntersection() ) {
     stop();
     delay(1000);
-//    Serial.print("Current Dir: ");Serial.println(virtBot.dir);
-//    Serial.print("Current turn: ");Serial.println(virtBot.turn);
-//    Serial.print("Current row: ");Serial.println(virtBot.coord.row,HEX);
-//    Serial.print("Current col: ");Serial.println(virtBot.coord.col,HEX);
-//    Serial.print("Current Room: ");Serial.println(virtBot.room, HEX);
-//    Serial.println("Taking a step");
     virtBot = enterRoom(virtBot);
-//    Serial.print("Row: ");Serial.println(virtBot.coord.row,HEX);
-//    Serial.print("Col: ");Serial.println(virtBot.coord.col,HEX);
-//    Serial.print("Room: ");Serial.println(virtBot.room, HEX);
     char choice = whichWay(virtBot);
-//    Serial.print("Next choice: ");Serial.println(choice);   
-//    Serial.println("");
     switch (choice) {
       case 'S': 
                 while(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) lineFollow();
@@ -149,55 +136,21 @@ void loop() {
   lineFollow();
 }
 
+/**Check if the bot is on an intersection or not
+ * Checks the IR data array which is available globally
+ * INPUTS: None
+ * OUTPUTS: None
+ */
 boolean isIntersection() {
   if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
     return true;
   }
   return false;
 }
-/**Function to allow line following for the bot
- *
- */
-void lineFollow() {
-	static uint8_t prevState = 0;
-	uint8_t newState;
-	if( IR_data[frontLeftData] > 500 && IR_data[frontRightData] > 500 ) {
-		newState = prevState;
-	} else if( IR_data[frontLeftData] < 500 && IR_data[frontRightData] < 500 ) {
-		newState = 2;
-	} else if( IR_data[frontLeftData] > 500 && IR_data[frontRightData] < 500 ) {
-		newState = 3;
-	} else if( IR_data[frontLeftData] < 500 && IR_data[frontRightData] > 500 ) { 
-		newState = 4;
-	}
-	if(prevState != newState) {
-		switch (newState) {
-			case 1: moveForward(maxSpeed,maxSpeed);
-					break;
-			case 2: if(prevState == 3) {
-							moveForward( maxSpeed+20, maxSpeed-10);
-							delay(95);
-					} else if(prevState == 4) {
-							moveForward( maxSpeed-10, maxSpeed+20);
-							delay(95);
-					}
-					stop();
-					moveForward(maxSpeed, maxSpeed);
-					go();
-					digitalWrite(LED, LOW);
-					break;
-			case 3: moveForward(maxSpeed, maxSpeed+10);
-					break;
-			case 4: moveForward(maxSpeed+10, maxSpeed);
-					break;
-		}
-		prevState = newState;
-	}
-	go();
-}
+
 
 /**Interrupt service routine to read analogIRData
- *
+ * Data is then averaged out with the previous 3 values
  */
 ISR(TIMER1_COMPA_vect) {
 	cli();
@@ -211,12 +164,14 @@ ISR(TIMER1_COMPA_vect) {
 	frontRight[counter] = analogRead(frontRightIR);
 	backLeft[counter] = analogRead(backLeftIR);
 	backRight[counter] = analogRead(backRightIR);
+ //Data is summed then the average is taken
 	for(int i = 0; i < 4; i++) {
 		sums[0] += frontLeft[i];
 		sums[1] += frontRight[i];
 		sums[2] += backLeft[i];
 		sums[3] += backRight[i];
 	}
+ //Global array is updated with new values
 	IR_data[frontLeftData] = (sums[0] >> 2);
 	IR_data[frontRightData] = (sums[1] >> 2);
 	IR_data[backLeftData] = (sums[2] >> 2);

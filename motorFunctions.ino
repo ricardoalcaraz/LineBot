@@ -8,9 +8,6 @@ void stop(){
 }
 
 
-
-
-
 /*---------------------------------------------------------------------------------------
  * Function to continue motor functions
  *
@@ -18,121 +15,6 @@ void stop(){
 void go(){
 	digitalWrite(STBY, HIGH);
 }
-
-
-
-
-
-/*---------------------------------------------------------------------------------------
- * FSM turn right.
- * Function to implement an exact turn without implementing a machine dependent delay
- * Due to the placement of my sensor I was able to implement and FSM turn in two states
- */
-void fsmRight(){
-	uint8_t state = 0;
-	go();
-	do {
-		lineFollow();
-	} while(IR_data[backLeftData] < 500 || IR_data[backRightData] < 500);
-	stop();
-	delay(1000);
-	tankTurnRight(maxSpeed, maxSpeed);
-	go();
-	while(IR_data[frontRightData] > 500);
-	stop();
-	delay(1000);
-	go();
-	while(IR_data[frontRightData] < 500);
-	stop();
-	delay(1000);
-	go();
-	while(IR_data[frontRightData] > 500);
-	
-/*
-		stop();
-		digitalWrite(LED, HIGH);
-		delay(1000);
-		do {
-			if(IR_data[frontLeftData] < 500){
-				moveBackward(0,maxSpeed);
-			} else if(IR_data[frontRightData] < 500) {
-				moveBackward(maxSpeed,0);
-			} else {
-				moveBackward(maxSpeed, maxSpeed);
-			}
-			go();
-		} while( IR_data[frontRightData] > 500 || IR_data[frontLeftData] > 500);
-		stop();
-		delay(1000);
-		do {	
-			tankTurnRight(maxSpeed, maxSpeed);
-			go();
-		} while( (IR_data[frontRightData] < 700) || IR_data[frontLeftData] < 700  ); 
-		stop();
-		do {
-			if(IR_data[frontLeftData] < 500){
-				moveForward(0,maxSpeed);
-			} else if(IR_data[frontRightData] < 500) {
-				moveForward(maxSpeed,0);
-			} else {
-				moveForward(maxSpeed, maxSpeed);
-			}
-			go();
-		} while(IR_data[frontRightData] > 500 || IR_data[frontLeftData] > 500); 
-		digitalWrite(LED,LOW);
-		stop();
-		delay(1000);
-*/
-}
-
-
-
-
-
-/*---------------------------------------------------------------------------------------
- * FSM turn right.
- * Function to implement an exact turn without implementing a machine dependent delay
- */
-void fsmLeft(uint8_t motorSpeed, uint16_t IR_data[4]){
-	/*Moving the bot into a good position to start the turn*/
-	while(IR_data[frontLeftData] > 300 && IR_data[frontRightData] > 300){
-		moveBackward(motorSpeed, motorSpeed);
-	}
-	/*Setting up for a tank turn*/
-	stop();
-	/*Setting Right motor to move backward*/
-	digitalWrite(AIN1, LOW);
-	digitalWrite(AIN2, HIGH);
-	/*Setting Left motor to move forward*/
-	digitalWrite(BIN1, HIGH);
-	digitalWrite(BIN2, LOW);
-	/*Setting the turning speed*/
-	/*Initiate turn*/
-	go();
-	/*State 2 Read IR sensor data until the front two sensor are hitting white, the line follow will autocorrect if it's not perfectly centered*/
-	do{
-		//readIRSensors(IR_data);
-	}while( IR_data[frontLeftData] < 300 && IR_data[frontRightData] < 300 );
-}
-
-
-
-
-
-/*---------------------------------------------------------------------------------------
- *Function to make the bot line follow
- */
-void lineFollow(uint16_t IR_data[4], uint8_t maxSpeed) {
-	  if(IR_data[backLeftData] < 300 && IR_data[backRightData] > 300){
-		  moveForward(maxSpeed, maxSpeed+7);
-	  } else if(IR_data[backLeftData] > 300 && IR_data[backRightData] < 300){
-		  moveForward(maxSpeed+7, maxSpeed);
-	  } else {
-		  moveForward(maxSpeed, maxSpeed);
-	  }
-}
-
-
 
 
 
@@ -148,12 +30,9 @@ void moveForward(uint8_t leftMotorSpeed, uint8_t rightMotorSpeed){
     digitalWrite(AIN2, HIGH);
     digitalWrite(BIN1, LOW);
     digitalWrite(BIN2, HIGH);
-	OCR4D = leftMotorSpeed+leftOffset;
-	OCR4B = rightMotorSpeed+rightOffset;
+  	OCR4D = leftMotorSpeed+leftOffset;
+  	OCR4B = rightMotorSpeed+rightOffset;
 }
-
-
-
 
 
 /*---------------------------------------------------------------------------------------
@@ -167,8 +46,8 @@ void moveBackward(uint8_t leftMotorSpeed, uint8_t rightMotorSpeed){
     digitalWrite(AIN2, LOW);
     digitalWrite(BIN1, HIGH);
     digitalWrite(BIN2, LOW);
-	OCR4D = leftMotorSpeed+leftOffset;
-	OCR4B = rightMotorSpeed+rightOffset;
+  	OCR4D = leftMotorSpeed+leftOffset;
+  	OCR4B = rightMotorSpeed+rightOffset;
 }
 
 
@@ -261,10 +140,11 @@ void arcTurnRight(uint8_t motorSpeed){
   OCR4D = motorSpeed;
 }
 
-/*Function to turn right with rotary encoders
- * 
+/*Turn right using the encoders as feedback
+ * Turning was implemented by counting ticks between different states
+ * INPUTS: None
+ * OUTPUTS: None
  */
-const uint8_t turn_ticks = 30;
 void rotaryRight() {
   digitalWrite(LED, HIGH);
   while( IR_data[backLeftData] < 500 || IR_data[backRightData] < 500 ) {
@@ -297,6 +177,11 @@ void rotaryRight() {
   digitalWrite(LED, LOW);
 }
 
+/*Turn left using the encoders as feedback
+ * Turning was implemented by counting ticks between different states
+ * INPUTS: None
+ * OUTPUTS: None
+ */
 void rotaryLeft() {
   digitalWrite(LED, HIGH);
   while( IR_data[backLeftData] < 500 || IR_data[backRightData] < 500 ) {
@@ -329,7 +214,11 @@ void rotaryLeft() {
   digitalWrite(LED, LOW);
 }
 
-const uint8_t turnAroundTicks = 40;
+/*Turn around using the encoders as feedback
+ * Turning was implemented by counting ticks between different states
+ * INPUTS: None
+ * OUTPUTS: None
+ */
 void rotaryTurnAround() {
 digitalWrite(LED, HIGH);
   noInterrupts();
@@ -343,7 +232,7 @@ digitalWrite(LED, HIGH);
   uint8_t prevStateRight = currentStateRight;
   tankTurnRight(maxSpeed, maxSpeed);
   go();
-  while(rightCounter < turnAroundTicks || leftCounter < 39 ) {
+  while(rightCounter < 40 || leftCounter < 39 ) {
     currentStateRight = PIND & 0x03;
     currentStateLeft = PINB & 0x0A;
     if(currentStateRight != prevStateRight) rightCounter++;
@@ -357,5 +246,48 @@ digitalWrite(LED, HIGH);
   interrupts();
   moveForward(maxSpeed, maxSpeed);
   digitalWrite(LED, LOW);
+}
+
+/**Basic Line following state machine
+ * Does rudimentary error correction by taking into account last state that the bot was in
+ * INPUTS: None
+ * OUTPUTS: None
+ */
+void lineFollow() {
+  static uint8_t prevState = 0;
+  uint8_t newState;
+  if( IR_data[frontLeftData] > 500 && IR_data[frontRightData] > 500 ) {
+    newState = prevState;
+  } else if( IR_data[frontLeftData] < 500 && IR_data[frontRightData] < 500 ) {
+    newState = 2;
+  } else if( IR_data[frontLeftData] > 500 && IR_data[frontRightData] < 500 ) {
+    newState = 3;
+  } else if( IR_data[frontLeftData] < 500 && IR_data[frontRightData] > 500 ) { 
+    newState = 4;
+  }
+  if(prevState != newState) {
+    switch (newState) {
+      case 1: moveForward(maxSpeed,maxSpeed);
+          break;
+      case 2: if(prevState == 3) {
+              moveForward( maxSpeed+20, maxSpeed-10);
+              delay(95);
+          } else if(prevState == 4) {
+              moveForward( maxSpeed-10, maxSpeed+20);
+              delay(95);
+          }
+          stop();
+          moveForward(maxSpeed, maxSpeed);
+          go();
+          digitalWrite(LED, LOW);
+          break;
+      case 3: moveForward(maxSpeed, maxSpeed+10);
+          break;
+      case 4: moveForward(maxSpeed+10, maxSpeed);
+          break;
+    }
+    prevState = newState;
+  }
+  go();
 }
 

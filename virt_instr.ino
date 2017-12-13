@@ -1,28 +1,37 @@
-
+/**Function to update the room and update the room data
+ * INPUTS: MazeValues structure
+ * OUTPUTS: MazeValues structure
+ */
 MazeValues enterRoom(MazeValues data) {
   data = stepInMaze(data);
   data = roomInMaze(data, theMaze);
   return data;
 }
 
-const char room1Decider[6] = {'S','S', 'L', 'L', 'S', 'L'};
+/**Determine which way to go!
+ * Will give you the next path depending on what the current room is
+ * INPUTS: MazeValues strucutre
+ * OUTPUTS: Char determining which direction to go
+ */
 char whichWay(MazeValues data) {
+  const char room1Decider[6] = {'S', 'L', 'L', 'S', 'L','S'};
+  const char room4Decider[4] = {'R', 'R', 'S'};
   uint8_t roomType = 0;
   static uint8_t n = 0;
+  static uint8_t k = 0;
   roomType |= (leftWall(data) << 2);
   roomType |= (hitWall(data) << 1);
   roomType |= rightWall(data);
   switch(roomType) {
     case 0: return 'S';
     break;
-    case 1: n++;
-            return room1Decider[n];
-            break;
+    case 1: return room1Decider[n++];
+    break;
     case 2: return 'L';
     break;
     case 3: return 'L';
     break;
-    case 4: return 'R';
+    case 4: return room4Decider[k++];
     break;
     case 5: return 'S';
     break;
@@ -121,7 +130,7 @@ boolean leftWall(MazeValues mazeData) {
 * Output: Boolean
 */
 void inForest(MazeValues mazeData) {
-  if(mazeData.coord.row == 0 && mazeData.coord.col == 0) {
+  if(mazeData.coord.row == 0 && mazeData.coord.col == 0x14) {
     victorySpin(mazeData);
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
     sleep_enable();
@@ -136,9 +145,8 @@ void inForest(MazeValues mazeData) {
 */
 void victorySpin(MazeValues mazeData) {
   for(uint8_t i = 0; i < mazeData.bees; i++){
-    //Movement hasn't been integrated yet so pseudocode is used for now
-    //turnAround
-    //turnAround
+    tankTurnRight(maxSpeed, maxSpeed);
+    delay(2000);
   }
 }
 
