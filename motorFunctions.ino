@@ -271,8 +271,8 @@ void rotaryRight() {
     lineFollow();
   }
   stop();
-  noInterrupts();
   delay(1000);
+  noInterrupts();
   uint8_t rightCounter = 0;
   uint8_t leftCounter = 0;
   uint8_t currentStateLeft = PINB & 0x0A;
@@ -280,7 +280,7 @@ void rotaryRight() {
   uint8_t currentStateRight = PIND & 0x03;
   uint8_t prevStateRight = currentStateRight;
   tankTurnRight(maxSpeed, maxSpeed);
-  while(rightCounter < 20 || leftCounter < 19 ) {
+  while(rightCounter < 20 || leftCounter < 18 ) {
     currentStateRight = PIND & 0x03;
     currentStateLeft = PINB & 0x0A;
     if(currentStateRight != prevStateRight) rightCounter++;
@@ -290,9 +290,10 @@ void rotaryRight() {
     delay(100);
     go();
   }
-  stop();
   interrupts();
+  stop();
   moveForward(maxSpeed, maxSpeed);
+  delay(1000);
   digitalWrite(LED, LOW);
 }
 
@@ -302,8 +303,8 @@ void rotaryLeft() {
     lineFollow();
   }
   stop();
-  noInterrupts();
   delay(1000);
+  noInterrupts();
   uint8_t rightCounter = 0;
   uint8_t leftCounter = 0;
   uint8_t currentStateLeft = PINB & 0x0A;
@@ -321,9 +322,10 @@ void rotaryLeft() {
     delay(100);
     go();
   }
-  stop();
   interrupts();
+  stop();
   moveForward(maxSpeed, maxSpeed);
+  delay(1000);
   digitalWrite(LED, LOW);
 }
 
