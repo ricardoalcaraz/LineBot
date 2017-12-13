@@ -1,22 +1,46 @@
 
+MazeValues enterRoom(MazeValues data) {
+  data = stepInMaze(data);
+  data = roomInMaze(data, theMaze);
+  return data;
+}
+
+char room1Decider[6] = {'S','S', 'L', 'L', 'S', 'L'};
+char whichWay(MazeValues data) {
+  uint8_t roomType = 0;
+  static uint8_t n = 0;
+  roomType |= (leftWall(data) << 2);
+  roomType |= (hitWall(data) << 1);
+  roomType |= rightWall(data);
+  switch(roomType) {
+    case 0: return 'S';
+    case 1: n++;
+            return room1Decider[n];
+    case 2: return 'L';
+    case 3: return 'L';
+    case 4: return 'R';
+    case 5: return 'S';
+    case 6: return 'R';
+    case 7: return 'T';
+  }
+}
 
 /*Turn in maze
  * Returns the MazeValues data structure with updated direction and turn
  *  none  right left  turn around
- *  0   0b01  0b10  0b11
+ *    0   0b01  0b10  0b11
  */
 MazeValues turnInMaze(MazeValues test) {
   uint8_t index = (test.turn << 2) + test.dir;                //Multiply the turn value by 4 and add the dir
-  test.turn = 0x00;
-  uint8_t temp = turn_table[index];
-  test.dir = turn_table[index];
+  test.turn = 0x00;                                           //Reset the turn        
+  test.dir = turn_table[index];                               //Grab the corresponding turn from a lookup table
   return test;                                                //Return current direction
 }
 
 /* Step in Maze
  * Returns the MazeValues data structure with update coordinates
  */
-MazeValues stepInMaze(MazeValues test, const uint8_t turn_table[]) {
+MazeValues stepInMaze(MazeValues test) {
   const int8_t rowMap[] = {+1, 0,  0, -1};
   const int8_t colMap[] = {0, +1, -1,  0};
   test.coord.row = (uint8_t) ((int8_t) test.coord.row + rowMap[test.dir]);

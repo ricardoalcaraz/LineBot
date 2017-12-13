@@ -77,9 +77,7 @@ const uint8_t maxSpeed = 40;
 const uint8_t leftOffset = 0;
 const uint8_t rightOffset = 3;
 volatile uint16_t IR_data[4];
-uint16_t maxIRValue;
-uint16_t minIRValue;
-/*In the setup we will set pins 2-8,10 to outputs for the motors and set A0-A4 to inputs for the IR Sensors*/
+
 void setup() {
 	motor_init();
 	timer4_pwm_init();
@@ -98,7 +96,7 @@ void setup() {
 	delay(500);
 	digitalWrite(LED, LOW);
 	delay(500);
-
+  lineFollow();
 }
 
 /*Functions Availabe:
@@ -109,32 +107,48 @@ void setup() {
 
 
 void loop() {
+  //Initializing the virtual robot
+  static MazeValues virtBot = {0x00, 0x00, 0x00, 0x03, 0x13, 0x00};
+  static uint8_t intersectionCounter = 0;
+  if( isIntersection() ) {
+    stop();
+    delay(1000);
+    virtBot = enterRoom(virtBot);
+    char choice = whichWay(virtBot);
+    switch (choice) {
+      case 'S': go();
+                while(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500);
+                break;
+      case 'L': virtBot.turn = 0b10;
+                virtBot = turnInMaze(virtBot);
+                rotaryLeft();
+                break;
+      case 'R': virtBot.turn = 0b01;
+                virtBot = turnInMaze(virtBot);
+                rotaryRight();
+                break;
+      case 'T': virtBot.turn = 0b11;
+                virtBot = turnInMaze(virtBot);
+                rotaryTurnAround();
+                break;   
+    }
+    lineFollow();
+    
 
-  static uint8_t counter = 0;
 
-	lineFollow();
-	if(IR_data[frontRightData] > 400 && IR_data[frontLeftData] > 400) {
-		stop();
-		delay(1000);
-		counter++;
-		if(counter == 2){
-			rotaryRight();
-      delay(2000);
-		} else if( counter == 3 ) {
-      rotaryRight();
-      delay(2000);
-		} else if( counter == 4 ) {
-		  rotaryTurnAround();
-      delay(2000);
-		} else {
-			go();
-			while(IR_data[frontLeftData] > 500 || IR_data[frontRightData] > 500);
-		}
-	}
 
+
+    
+  }
 
 }
 
+boolean isIntersection() {
+  if(IR_data[frontRightData] > 500 && IR_data[frontLeftData] > 500) {
+    return true;
+  }
+  return false;
+}
 /**Function to allow line following for the bot
  *
  */
